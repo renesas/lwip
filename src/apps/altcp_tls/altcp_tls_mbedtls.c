@@ -48,7 +48,7 @@
  *   GOOD custom entropy
  *
  * Missing things / @todo:
- * - some unhandled/untested things migh be caught by LWIP_ASSERTs...
+ * - some unhandled/untested things might be caught by LWIP_ASSERTs...
  */
 
 #include "lwip/opt.h"
@@ -129,6 +129,15 @@ static err_t altcp_mbedtls_lower_recv_process(struct altcp_pcb *conn, altcp_mbed
 static err_t altcp_mbedtls_handle_rx_appldata(struct altcp_pcb *conn, altcp_mbedtls_state_t *state);
 static int altcp_mbedtls_bio_send(void *ctx, const unsigned char *dataptr, size_t size);
 
+
+static void
+altcp_mbedtls_flush_output(altcp_mbedtls_state_t* state)
+{
+  int flushed = mbedtls_ssl_flush_output(&state->ssl_context);
+  if (flushed) {
+    LWIP_DEBUGF(ALTCP_MBEDTLS_DEBUG, ("mbedtls_ssl_flush_output failed: %d\n", flushed));
+  }
+}
 
 /* callback functions from inner/lower connection: */
 
@@ -528,7 +537,7 @@ altcp_mbedtls_lower_sent(void *arg, struct altcp_pcb *inner_conn, u16_t len)
     /* remove ACKed bytes from overhead adjust counter */
     state->overhead_bytes_adjust -= len;
     /* try to send more if we failed before (may increase overhead adjust counter) */
-    mbedtls_ssl_flush_output(&state->ssl_context);
+    altcp_mbedtls_flush_output(state);
     /* remove calculated overhead from ACKed bytes len */
     app_len = len - (u16_t)overhead;
     /* update application write counter and inform application */
@@ -556,7 +565,7 @@ altcp_mbedtls_lower_poll(void *arg, struct altcp_pcb *inner_conn)
     if (conn->state) {
       altcp_mbedtls_state_t *state = (altcp_mbedtls_state_t *)conn->state;
       /* try to send more if we failed before */
-      mbedtls_ssl_flush_output(&state->ssl_context);
+      altcp_mbedtls_flush_output(state);
       if (altcp_mbedtls_handle_rx_appldata(conn, state) == ERR_ABRT) {
         return ERR_ABRT;
       }
