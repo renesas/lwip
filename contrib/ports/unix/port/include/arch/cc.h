@@ -41,8 +41,6 @@
 #define LWIP_UNIX_MACH
 #elif defined __OpenBSD__
 #define LWIP_UNIX_OPENBSD
-#elif defined __FreeBSD__
-#define LWIP_UNIX_FREEBSD
 #elif defined __FreeBSD_kernel__ && __GLIBC__
 #define LWIP_UNIX_KFREEBSD
 #elif defined __CYGWIN__
@@ -53,10 +51,6 @@
 
 #define LWIP_TIMEVAL_PRIVATE 0
 #include <sys/time.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define LWIP_ERRNO_INCLUDE <errno.h>
 
@@ -91,9 +85,5 @@ typedef struct sio_status_s sio_status_t;
 #define __sio_fd_t_defined
 
 typedef unsigned int sys_prot_t;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* LWIP_ARCH_CC_H */

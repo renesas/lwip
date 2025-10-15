@@ -1792,7 +1792,7 @@ mdns_probe_conflict(struct netif *netif, s8_t slot)
 }
 
 /**
- * Lookup matching request for response MDNS packet
+ * Loockup matching request for response MDNS packet
  */
 #if LWIP_MDNS_SEARCH
 static struct mdns_request *
