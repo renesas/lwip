@@ -633,7 +633,7 @@ lwiperf_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
   tcp_arg(newpcb, conn);
   tcp_recv(newpcb, lwiperf_tcp_recv);
   tcp_poll(newpcb, lwiperf_tcp_poll, 2U);
-  tcp_err(conn->conn_pcb, lwiperf_tcp_err);
+  tcp_err(newpcb, lwiperf_tcp_err);
 
   if (s->specific_remote) {
     /* this listener belongs to a client, so make the client the master of the newly created connection */
@@ -836,7 +836,7 @@ lwiperf_abort(void *lwiperf_session)
       if (last != NULL) {
         last->next = i;
       }
-      LWIPERF_FREE(lwiperf_state_tcp_t, dealloc); /* @todo: type? */
+      lwiperf_tcp_close((lwiperf_state_tcp_t *)dealloc, LWIPERF_TCP_ABORTED_LOCAL);
     } else {
       last = i;
       i = i->next;
