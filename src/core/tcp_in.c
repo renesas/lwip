@@ -126,6 +126,7 @@ tcp_input(struct pbuf *p, struct netif *inp)
   u8_t hdrlen_bytes;
   err_t err;
 
+  SEGGER_RTT_printf(0, "at tcp_input() \n");
   LWIP_UNUSED_ARG(inp);
   LWIP_ASSERT_CORE_LOCKED();
   LWIP_ASSERT("tcp_input: invalid pbuf", p != NULL);

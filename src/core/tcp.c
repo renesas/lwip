@@ -1202,6 +1202,12 @@ tcp_slowtmr(void)
   err_t err;
 
   err = ERR_OK;
+  // uint32_t            gwdi_status;
+  R_GWCA0_Type * p_gwca_reg_check = R_GWCA0;
+  volatile uint32_t * p_gwca_gwdi_reg;
+  /* Get status register address. */
+  p_gwca_gwdi_reg = (uint32_t *) ((uintptr_t) &(p_gwca_reg_check->GWDIS0));
+  // gwdi_status  = *p_gwca_gwdi_reg;
 
   ++tcp_ticks;
   ++tcp_timer_ctr;
@@ -1431,6 +1437,7 @@ tcp_slowtmr_start:
         }
         /* if err == ERR_ABRT, 'prev' is already deallocated */
         if (err == ERR_OK) {
+          SEGGER_RTT_printf(0, "At tcp_slowtmr: %lu \n", *p_gwca_gwdi_reg);
           tcp_output(prev);
         }
       }
