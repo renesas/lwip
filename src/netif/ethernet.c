@@ -183,7 +183,7 @@ ethernet_input(struct pbuf *p, struct netif *netif)
         goto free_and_return;
       } else {
         /* pass to IP layer */
-        SEGGER_RTT_printf(0, "callback to ip4_input \n");
+        // SEGGER_RTT_printf(0, "callback to ip4_input \n");
         ip4_input(p, netif);
       }
       break;
