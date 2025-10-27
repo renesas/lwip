@@ -1603,6 +1603,7 @@ tcp_output_segment(struct tcp_seg *seg, struct tcp_pcb *pcb, struct netif *netif
   NETIF_SET_HINTS(netif, &(pcb->netif_hints));
   err = ip_output_if(seg->p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl,
                      pcb->tos, IP_PROTO_TCP, netif);
+  SEGGER_RTT_printf(0, "ip_output_if: err = %lu\n", err);
   NETIF_RESET_HINTS(netif);
 
 #if TCP_CHECKSUM_ON_COPY
