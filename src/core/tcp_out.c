@@ -340,6 +340,7 @@ tcp_write_checks(struct tcp_pcb *pcb, u16_t len)
     tcp_set_flags(pcb, TF_NAGLEMEMERR);
     return ERR_MEM;
   }
+  SEGGER_RTT_printf(0, "tcp_out: pcb->unacked= %lu, pcb->unsent = %lu\n", pcb->unacked, pcb->unsent);
   if (pcb->snd_queuelen != 0) {
     LWIP_ASSERT("tcp_write: pbufs on queue => at least one queue non-empty",
                 pcb->unacked != NULL || pcb->unsent != NULL);
