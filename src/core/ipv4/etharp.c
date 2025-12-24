@@ -57,6 +57,7 @@
 #include "netif/ethernet.h"
 
 #include <string.h>
+#include "../../scripts/util/performance.h"
 
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
@@ -748,6 +749,7 @@ etharp_input(struct pbuf *p, struct netif *netif)
 static err_t
 etharp_output_to_arp_index(struct netif *netif, struct pbuf *q, netif_addr_idx_t arp_idx)
 {
+  // err_t lwip_err         = ERR_OK;
   LWIP_ASSERT("arp_table[arp_idx].state >= ETHARP_STATE_STABLE",
               arp_table[arp_idx].state >= ETHARP_STATE_STABLE);
   /* if arp table entry is about to expire: re-request it,
@@ -767,7 +769,16 @@ etharp_output_to_arp_index(struct netif *netif, struct pbuf *q, netif_addr_idx_t
     }
   }
 
+  // if(lwip_tcp_flg == 1){
+  //   printf("PERFORMANCE_MEASURE_START_POINT\n");
+  //   PERFORMANCE_MEASURE_START_POINT;
+  //   lwip_err = ethernet_output(netif, q, (struct eth_addr *)(netif->hwaddr), &arp_table[arp_idx].ethaddr, ETHTYPE_IP);
+  //   PERFORMANCE_MEASURE_STOP_POINT
+  //   lwip_tcp_flg = 0;
+  //   return lwip_err;
+  // }else{
   return ethernet_output(netif, q, (struct eth_addr *)(netif->hwaddr), &arp_table[arp_idx].ethaddr, ETHTYPE_IP);
+  // }
 }
 
 /**

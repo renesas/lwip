@@ -58,6 +58,7 @@
 #include "lwip/prot/iana.h"
 
 #include <string.h>
+#include "../../scripts/util/performance.h"
 
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
@@ -876,6 +877,7 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
                       u16_t optlen)
 {
 #endif /* IP_OPTIONS_SEND */
+  // err_t lwip_err         = ERR_OK;
   struct ip_hdr *iphdr;
   ip4_addr_t dest_addr;
 #if CHECKSUM_GEN_IP_INLINE
@@ -1038,7 +1040,16 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
 #endif /* IP_FRAG */
 
   LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: call netif->output()\n"));
+  / if(lwip_tcp_flg == 1){
+  //   printf("PERFORMANCE_MEASURE_START_POINT\n");
+  //   PERFORMANCE_MEASURE_START_POINT;
+  //   lwip_err = netif->output(netif, p, dest);
+  //   PERFORMANCE_MEASURE_STOP_POINT
+  //   lwip_tcp_flg = 0;
+  //   return lwip_err;
+  // }else{
   return netif->output(netif, p, dest);
+  // }
 }
 
 /**

@@ -79,6 +79,8 @@
 #endif
 
 #include <string.h>
+#include "../../scripts/util/performance.h"
+#include "rm_lwip_tests_port.h"
 
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
@@ -616,7 +618,15 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       }
       LWIP_ASSERT("tcp_write: check that first pbuf can hold the complete seglen",
                   (p->len >= seglen));
+      // if(lwip_tcp_flg == 1){
+      //   printf("PERFORMANCE_MEASURE_START_POINT\n");
+      //   PERFORMANCE_MEASURE_START_POINT;
+      //   TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos, seglen, &chksum, &chksum_swapped);
+      //   PERFORMANCE_MEASURE_STOP_POINT
+      //   lwip_tcp_flg = 0;
+      // }else{
       TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos, seglen, &chksum, &chksum_swapped);
+      // }
     } else {
       /* Copy is not set: First allocate a pbuf for holding the data.
        * Since the referenced data is available at least until it is
@@ -1354,7 +1364,20 @@ tcp_output(struct tcp_pcb *pcb)
       TCPH_SET_FLAG(seg->tcphdr, TCP_ACK);
     }
 
+    // if(lwip_tcp_flg == 1){
+    //   lwip_tcp_flg = 0;
+    //   printf("PERFORMANCE_MEASURE_START_POINT\n");
+    //   PERFORMANCE_MEASURE_START_POINT;
+    //   err = tcp_output_segment(seg, pcb, netif);
+    //   PERFORMANCE_MEASURE_STOP_POINT
+    //   timer_status_t status;
+    //   R_GPT_StatusGet(g_perf_test_timer.p_ctrl, &status);
+    //   uint32_t pclk_div = 1U << R_SYSTEM->SCKDIVCR_b.PCKD;
+    //   uint64_t elapsed_time_ns = (uint64_t)elapsed_time*1000*1000*1000;
+    //   printf("PERFORMANCE_MEASURE_SILENT: %u ns, elapsed_time= %lu\n", (unsigned int) (elapsed_time_ns/PERFORMANCE_TIMER_RATE_HZ), elapsed_time);
+    // }else{
     err = tcp_output_segment(seg, pcb, netif);
+    // }
     if (err != ERR_OK) {
       /* segment could not be sent, for whatever reason */
       tcp_set_flags(pcb, TF_NAGLEMEMERR);
@@ -1593,16 +1616,34 @@ tcp_output_segment(struct tcp_seg *seg, struct tcp_pcb *pcb, struct netif *netif
     }
 #endif /* TCP_CHECKSUM_ON_COPY_SANITY_CHECK */
 #else /* TCP_CHECKSUM_ON_COPY */
+    // if(lwip_tcp_flg == 1){
+    //   printf("PERFORMANCE_MEASURE_START_POINT\n");
+    //   PERFORMANCE_MEASURE_START_POINT;
+    //   seg->tcphdr->chksum = ip_chksum_pseudo(seg->p, IP_PROTO_TCP,
+    //                                        seg->p->tot_len, &pcb->local_ip, &pcb->remote_ip);
+    //   PERFORMANCE_MEASURE_STOP_POINT
+    //   lwip_tcp_flg = 0;
+    // }else{
     seg->tcphdr->chksum = ip_chksum_pseudo(seg->p, IP_PROTO_TCP,
                                            seg->p->tot_len, &pcb->local_ip, &pcb->remote_ip);
+    // }
 #endif /* TCP_CHECKSUM_ON_COPY */
   }
 #endif /* CHECKSUM_GEN_TCP */
   TCP_STATS_INC(tcp.xmit);
 
   NETIF_SET_HINTS(netif, &(pcb->netif_hints));
+  if(lwip_tcp_flg == 1){
+    printf("PERFORMANCE_MEASURE_START_POINT\n");
+    PERFORMANCE_MEASURE_START_POINT;
+    err = ip_output_if(seg->p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl,
+                     pcb->tos, IP_PROTO_TCP, netif);
+    PERFORMANCE_MEASURE_STOP_POINT
+    lwip_tcp_flg = 0;
+  }else{
   err = ip_output_if(seg->p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl,
                      pcb->tos, IP_PROTO_TCP, netif);
+  }
   NETIF_RESET_HINTS(netif);
 
 #if TCP_CHECKSUM_ON_COPY
