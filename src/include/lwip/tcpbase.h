@@ -70,6 +70,7 @@ enum tcp_state {
 #define TCP_STATE_IS_CLOSING(state) ((state) >= FIN_WAIT_1)
 
 /* Flags for "apiflags" parameter in tcp_write */
+#define TCP_WRITE_FLAG_ZEROCOPY 0x00
 #define TCP_WRITE_FLAG_COPY 0x01
 #define TCP_WRITE_FLAG_MORE 0x02
 

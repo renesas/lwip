@@ -584,6 +584,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       }
 
       pos += seglen;
+      // pos += seglen + 54;
     }
 #endif /* !LWIP_NETIF_TX_SINGLE_PBUF */
   } else {
@@ -625,7 +626,8 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       //   PERFORMANCE_MEASURE_STOP_POINT
       //   lwip_tcp_flg = 0;
       // }else{
-      TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos, seglen, &chksum, &chksum_swapped);
+      TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos + 54U, seglen, &chksum, &chksum_swapped);
+      // TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos, seglen, &chksum, &chksum_swapped);
       // }
     } else {
       /* Copy is not set: First allocate a pbuf for holding the data.
@@ -650,7 +652,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       }
 #endif /* TCP_CHECKSUM_ON_COPY */
       /* reference the non-volatile payload data */
-      ((struct pbuf_rom *)p2)->payload = (const u8_t *)arg + pos;
+      ((struct pbuf_rom *)p2)->payload = (const u8_t *)arg + pos + 54U;
 
       /* Second, allocate a pbuf for the headers. */
       if ((p = pbuf_alloc(PBUF_TRANSPORT, optlen, PBUF_RAM)) == NULL) {
@@ -704,6 +706,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
                 lwip_ntohl(seg->tcphdr->seqno) + TCP_TCPLEN(seg)));
 
     pos += seglen;
+    // pos += seglen + 54;
   }
 
   /*
