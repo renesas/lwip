@@ -626,7 +626,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       //   PERFORMANCE_MEASURE_STOP_POINT
       //   lwip_tcp_flg = 0;
       // }else{
-      TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos + 54U, seglen, &chksum, &chksum_swapped);
+      TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos + (pos/seglen + 1U)*54U, seglen, &chksum, &chksum_swapped);
       // TCP_DATA_COPY2((char *)p->payload + optlen, (const u8_t *)arg + pos, seglen, &chksum, &chksum_swapped);
       // }
     } else {
@@ -652,7 +652,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       }
 #endif /* TCP_CHECKSUM_ON_COPY */
       /* reference the non-volatile payload data */
-      ((struct pbuf_rom *)p2)->payload = (const u8_t *)arg + pos + 54U;
+      ((struct pbuf_rom *)p2)->payload = (const u8_t *)arg + pos + (pos/seglen + 1U)*54U;
 
       /* Second, allocate a pbuf for the headers. */
       if ((p = pbuf_alloc(PBUF_TRANSPORT, optlen, PBUF_RAM)) == NULL) {
@@ -1636,17 +1636,17 @@ tcp_output_segment(struct tcp_seg *seg, struct tcp_pcb *pcb, struct netif *netif
   TCP_STATS_INC(tcp.xmit);
 
   NETIF_SET_HINTS(netif, &(pcb->netif_hints));
-  if(lwip_tcp_flg == 1){
-    printf("PERFORMANCE_MEASURE_START_POINT\n");
-    PERFORMANCE_MEASURE_START_POINT;
-    err = ip_output_if(seg->p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl,
-                     pcb->tos, IP_PROTO_TCP, netif);
-    PERFORMANCE_MEASURE_STOP_POINT
-    lwip_tcp_flg = 0;
-  }else{
+  // if(lwip_tcp_flg == 1){
+  //   printf("PERFORMANCE_MEASURE_START_POINT\n");
+  //   PERFORMANCE_MEASURE_START_POINT;
+  //   err = ip_output_if(seg->p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl,
+  //                    pcb->tos, IP_PROTO_TCP, netif);
+  //   PERFORMANCE_MEASURE_STOP_POINT
+  //   lwip_tcp_flg = 0;
+  // }else{
   err = ip_output_if(seg->p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl,
                      pcb->tos, IP_PROTO_TCP, netif);
-  }
+  // }
   NETIF_RESET_HINTS(netif);
 
 #if TCP_CHECKSUM_ON_COPY
