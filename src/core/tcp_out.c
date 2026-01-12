@@ -1270,6 +1270,9 @@ tcp_output(struct tcp_pcb *pcb)
 
 
   wnd = LWIP_MIN(pcb->snd_wnd, pcb->cwnd);
+  // if(lwip_tcp_flg == 1){
+  //   printf("tcp_output with pcb->snd_wnd  = %u, pcb->cwnd =%u, wnd=%u\n", pcb->snd_wnd ,pcb->cwnd, wnd);
+  // }
 
   seg = pcb->unsent;
 
@@ -1429,6 +1432,9 @@ tcp_output(struct tcp_pcb *pcb)
       tcp_seg_free(seg);
     }
     seg = pcb->unsent;
+    // if(lwip_tcp_flg == 1){
+    //   printf("check next seg  = %u, pcb->lastack= %u, seg->len =%u\n", lwip_ntohl(seg->tcphdr->seqno), pcb->lastack, seg->len);
+    // }
   }
 #if TCP_OVERSIZE
   if (pcb->unsent == NULL) {
